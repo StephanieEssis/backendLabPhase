@@ -1,80 +1,69 @@
+const mongoose = require('mongoose');
 const dotenv = require('dotenv');
-const connectDB = require('../config/db');
 const Category = require('../models/Category');
 
 dotenv.config();
 
 const categories = [
   {
-    name: 'Standard',
-    description: 'Chambre confortable et fonctionnelle pour un séjour agréable',
-    basePrice: 100,
-    features: [
-      'Lit double',
-      'Salle de bain privée',
-      'TV écran plat',
-      'Wifi gratuit',
-      'Climatisation'
-    ],
-    image: {
-      url: '/images/categories/standard.jpg',
-      alt: 'Chambre standard'
-    }
+    name: 'Suite Royal',
+    description: 'Chambre confortable avec les équipements essentiels',
+    image: 'https://images.unsplash.com/photo-1611892440504-42a792e24d32?q=80&w=2070&auto=format&fit=crop'
   },
   {
     name: 'Deluxe',
-    description: 'Chambre spacieuse avec vue et prestations supérieures',
-    basePrice: 200,
-    features: [
-      'Grand lit king-size',
-      'Salle de bain luxueuse',
-      'Salon privé',
-      'Mini-bar',
-      'Vue sur la ville',
-      'Service en chambre 24/7'
-    ],
-    image: {
-      url: '/images/categories/deluxe.jpg',
-      alt: 'Chambre deluxe'
-    }
+    description: 'Chambre spacieuse avec vue et équipements premium',
+    image: 'https://images.unsplash.com/photo-1578683010236-d716f9a3f461?q=80&w=2070&auto=format&fit=crop'
   },
   {
     name: 'Suite',
-    description: 'Suite exclusive avec espace séjour et prestations premium',
-    basePrice: 350,
-    features: [
-      'Chambre séparée',
-      'Grand salon',
-      'Jacuzzi privé',
-      'Vue panoramique',
-      'Majordome personnel',
-      'Petit-déjeuner inclus',
-      'Accès au lounge VIP'
-    ],
-    image: {
-      url: '/images/categories/suite.jpg',
-      alt: 'Suite luxueuse'
-    }
+    description: 'Suite luxueuse avec salon séparé et services exclusifs',
+    image: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?q=80&w=2070&auto=format&fit=crop'
+  },
+  {
+    name: 'Familiale',
+    description: 'Grande chambre adaptée aux familles avec espace de vie',
+    image: 'https://images.unsplash.com/photo-1616594039964-ae9021a400a0?q=80&w=2070&auto=format&fit=crop'
   }
 ];
 
 const seedCategories = async () => {
   try {
-    await connectDB();
+    await mongoose.connect(process.env.MONGODB_URI);
+    console.log('Connexion à MongoDB établie');
 
     // Supprimer les catégories existantes
-    await Category.deleteMany();
-    console.log('Catégories supprimées');
+    await Category.deleteMany({});
+    console.log('Catégories existantes supprimées');
 
     // Insérer les nouvelles catégories
-    await Category.insertMany(categories);
-    console.log('Catégories créées avec succès');
+    const createdCategories = await Category.insertMany(categories);
+    console.log('Nouvelles catégories créées');
 
-    process.exit();
+    // Retourner les IDs pour les utiliser dans le seed des chambres
+    const categoryIds = createdCategories.reduce((acc, cat) => {
+      acc[cat.name] = cat._id;
+      return acc;
+    }, {});
+
+    return categoryIds;
   } catch (error) {
-    console.error(`Erreur: ${error.message}`);
+    console.error('Erreur lors du seed des catégories:', error);
     process.exit(1);
   }
 };
 
-seedCategories(); 
+module.exports = seedCategories;
+
+// Si exécuté directement
+if (require.main === module) {
+  seedCategories()
+    .then(() => {
+      console.log('Seed des catégories terminé');
+      process.exit(0);
+    })
+    .catch(error => {
+      console.error('Erreur:', error);
+      process.exit(1);
+    });
+} 

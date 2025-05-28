@@ -1,5 +1,5 @@
-import jwt from 'jsonwebtoken';
-import User from '../models/User.js';
+const jwt = require('jsonwebtoken');
+const User = require('../models/User');
 
 // Génération du token JWT
 const generateToken = (userId) => {
@@ -11,7 +11,7 @@ const generateToken = (userId) => {
 };
 
 // Inscription
-export const register = async (req, res) => {
+const register = async (req, res) => {
   try {
     const { email, password, firstName, lastName, phoneNumber } = req.body;
 
@@ -54,7 +54,7 @@ export const register = async (req, res) => {
 };
 
 // Connexion
-export const login = async (req, res) => {
+const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
@@ -99,7 +99,7 @@ export const login = async (req, res) => {
 };
 
 // Obtenir le profil de l'utilisateur connecté
-export const getProfile = async (req, res) => {
+const getProfile = async (req, res) => {
   try {
     const user = await User.findById(req.user.id);
     if (!user) {
@@ -122,7 +122,7 @@ export const getProfile = async (req, res) => {
 };
 
 // Mettre à jour le profil
-export const updateProfile = async (req, res) => {
+const updateProfile = async (req, res) => {
   try {
     const updates = Object.keys(req.body);
     const allowedUpdates = ['firstName', 'lastName', 'phoneNumber', 'password'];
@@ -159,7 +159,7 @@ export const updateProfile = async (req, res) => {
 };
 
 // Déconnexion (optionnel côté serveur si utilisation de JWT)
-export const logout = async (req, res) => {
+const logout = async (req, res) => {
   try {
     res.json({
       success: true,
@@ -171,4 +171,12 @@ export const logout = async (req, res) => {
       message: error.message
     });
   }
+};
+
+module.exports = {
+  register,
+  login,
+  getProfile,
+  updateProfile,
+  logout
 }; 

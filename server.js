@@ -1,64 +1,36 @@
-  const express = require('express');
-  const dotenv = require('dotenv');
-  const cors = require('cors');
-  // import morgan from 'morgan';
-  const connectDB = require('./config/db');
+const express = require('express');
+const dotenv = require('dotenv');
+const cors = require('cors');
+const mongoose = require('mongoose');
 
-  // Routes
-  const authRoutes = require('./routes/auth');
-  const roomRoutes = require('./routes/rooms');
-  const categoryRoutes = require('./routes/categories');
-  const bookingRoutes = require('./routes/bookings');
-  const statsRoutes = require('./routes/stats');
+// Routes
+const roomRoutes = require('./routes/rooms');
+const categoryRoutes = require('./routes/categories');
 
-  // Middleware
-  const { errorHandler } = require('./middleware/authMiddleware');
+// Configuration
+dotenv.config();
+const app = express();
+const port = process.env.PORT || 9000;
 
-  // Configuration
-  dotenv.config();
-  const app = express();
-  const port = process.env.PORT || 9000;
+// Connexion à MongoDB
+mongoose.connect(process.env.MONGODB_URI)
+  .then(() => console.log('✅ Connecté à MongoDB'))
+  .catch((err) => console.error('❌ Erreur MongoDB:', err));
 
-  // Connexion à la base de données
-  connectDB();
+// Middleware
+app.use(cors());
+app.use(express.json());
 
-  // Middleware
-  app.use(cors());
-  app.use(express.json());
-  // app.use(express.urlencoded({ extended: true }));
+// Routes
+app.use('/api/rooms', roomRoutes);
+app.use('/api/categories', categoryRoutes);
 
-  // // Logger en développement
-  // if (process.env.NODE_ENV === 'development') {
-  //   app.use(morgan('dev'));
-  // }
+// Route de test
+app.get('/api/test', (req, res) => {
+  res.json({ message: 'API fonctionne correctement' });
+});
 
-  // Routes
-  app.use('/api/auth', authRoutes);
-  app.use('/api/rooms', roomRoutes);
-  app.use('/api/categories', categoryRoutes);
-  app.use('/api/bookings', bookingRoutes);
-  app.use('/api/stats', statsRoutes);
-
-  // Route de test
-  // app.get('/api/test', (req, res) => {
-  //   res.json({
-  //     success: true,
-  //     message: 'API MylanLodge fonctionne correctement'
-  //   });
-  // });
-
-  // Middleware de gestion des erreurs
-  app.use(errorHandler);
-
-  // Gestion des routes non trouvées
-  // app.use('*', (req, res) => {
-  //   res.status(404).json({
-  //     success: false,
-  //     message: 'Route non trouvée'
-  //   });
-  // });
-
-  // Démarrage du serveur
-  app.listen(port, () => {
-    console.log(`Serveur démarré sur le port ${port}`);
-  }); 
+// Démarrage du serveur
+app.listen(port, () => {
+  console.log(`✅ Serveur démarré sur le port ${port}`);
+}); 

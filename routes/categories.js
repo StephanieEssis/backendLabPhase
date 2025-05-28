@@ -7,7 +7,7 @@ const {
   deleteCategory,
   getCategoryStats
 } = require('../controllers/categoryController');
-const { auth, adminOnly } = require('../middleware/authMiddleware');
+const { auth, admin } = require('../middleware/authMiddleware');
 
 const router = express.Router();
 
@@ -17,8 +17,8 @@ router.get('/:id', getCategory);
 router.get('/:id/stats', getCategoryStats);
 
 // Routes admin
-router.post('/', auth, adminOnly, createCategory);
-router.patch('/:id', auth, adminOnly, updateCategory);
-router.delete('/:id', auth, adminOnly, deleteCategory);
+router.post('/', auth, admin, createCategory);
+router.patch('/:id', auth, admin, updateCategory);
+router.delete('/:id', auth, admin, deleteCategory);
 
 module.exports = router; 
